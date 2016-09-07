@@ -6,7 +6,7 @@
 #define _DELIM ";"
 
 /*
- * read() will return the user's inputted commands, with error checking
+ * MARK: read() will return the user's inputted commands, with error checking
  */
 
 char* read() {
@@ -19,7 +19,7 @@ char* read() {
 }//end of read()
 
 /*
- * parse(char*) will parse through the user's input, seperated by ; character.
+ * MARK: parse(char*) will parse through the user's input, seperated by ; character.
  * Will return an array of tokens/strings, each token being a command to be exectued
  * by the shell.
  */
@@ -28,7 +28,7 @@ char **parse(char *line) {
   int pos = 0;
   int sz = 64;
   int len;
-  char **result = malloc(sz * sizeof(char));
+  char **result = malloc(sz*(sizeof(char)));
   //printf("After malloc check\n");
   char *temp, *temp2;
 
@@ -56,54 +56,57 @@ char **parse(char *line) {
   }
   result[pos] = NULL;//null terminated
   return result;
-}
+}//end of parse()
 
 /*
- * exec(tokens) executes array of tokens
+ * MARK: exec(tokens) executes array of tokens
  * built in commands then process() from within
  */
 
 int exec(char** tokens) {
   return 0;
-}
+}//end of exec()
 
 /*
- * process(**toks) forks the process, saves and returns value.
+ * MARK: process(**toks) executes commands using fork(), execvp(), wait()/waitpid()
  */
 
  int process(char **toks) {
-   pid_t pid1, pid2;//parent process id number of child
+   pid_t child, c;//parent process id number of child
    int status;
-
-   pid1 = fork();
-
-   if(pid1 == 0) {//child, takes first condition
-
+   child = fork();
+   if(child == 0) {//child, takes first condition
      if(execvp(toks[0], toks) == -1) {//run command given by user, if returns then error
-       perror("error");
-        } exit(EXIT_FAILURE);//exit and keep running shell
-
-   } else if(pid1 < 0) {//error when forking
-     perror("error");
-
+       perror("Error executiing command..");
+     }  exit(EXIT_FAILURE);//exit and keep running shell
+   } else if(child < 0) {//error when forking
+     perror("Error forking..");
    } else {//parent, successful fork(), wait for command to finish
       do {
-        pid2 = waitpid(pid1, &status, WUNTRACED);//wait for state to change
+        c = waitpid(child, &status, WUNTRACED);//wait for state to change
+        //^^^return status information for a specified process
+        //that has either stopped or terminated
       } while(!WIFEXITED(status) && !WIFSIGNALED(status));//exited or killed
-   }
-
+   }         //^^return 0 is terminated normally and mishanded signal
    return 1;//prompt for more input
+ }//end of process()
 
- }
+ /*
+  * MARK: free_tokens(tokens) iterate through tokens and free each one
+  */
 
 void free_tokens(char **tokens) {
-  char **itr = tokens;
-  while(*itr != NULL) {
-    free(*itr);
-    itr++;
+  char **itr_token = tokens;//set itr to first token
+  while(*itr_token != NULL) {//if not empty
+    free(*itr_token);//free that token
+    itr_token++;//move on to the next token until null is found
   }
-  free(tokens);
-}
+  free(tokens);//free up tokens
+}//end of free_tokens()
+
+/*
+ * MARK: main(argc, argv[]) start shell loop
+ */
 
 int main(int argc, char** argv) {
   char *userInput;//used to read lines from command promt
@@ -115,9 +118,8 @@ int main(int argc, char** argv) {
     userInput = read();//read commands from user
     toks = parse(userInput);
     status = exec(toks);
-
     free(*userInput);//free up space in memory, deallocate
-    free_tokens(toks);
+    free_tokens(toks);//individually free tokens, fixes compile error
   }while(status);
 
 
