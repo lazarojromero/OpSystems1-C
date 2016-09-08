@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
   char *userInput;//used to read lines from command promt
   char **toks; //commands seperated by ; character
   int status; //decides when to quit/exit
-
+  printf("Welcome to Lazaro's Shell!\n");
   do {
     printf("prompt> ");
     userInput = read();//read commands from user
