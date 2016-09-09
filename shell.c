@@ -5,13 +5,9 @@
 #include <sys/wait.h>
 
 #define INPUT_SIZE 1024
-
 /* TODO:
- * built in commands
- * quit command
  * batch mode
  */
-
 /*
  * MARK: Built in commands that need to be run from within shell itself
  */
@@ -26,7 +22,7 @@ char *commands[] = {
  * MARK: Must first change second arg exits before calling chdir()
  */
 
-void cd(char** path) {
+int cd(char** path) {
   if(path[1] == NULL) {//if second arg is missing
     fprintf(stderr, "Error: second arguement for cd command missing..\n");
   } else {
@@ -34,25 +30,27 @@ void cd(char** path) {
       perror("Error: could not change directory\n");
     }
   }
+  return 1;
 }
 
 /*
  * MARK: returns 0 to exit shell loop
  */
 
-void quit_loop() {
-  exit(0);
+int quit_loop() {
+  return 0;
 }
 
 /*
  * MARK: message that lists all commands
  */
 
-void help() {
-  printf("The following are built in commands supported by Lazaro's Shell:\n");
+int help() {
+  printf("Lazaro's shell currently has the following built-in commands:\n");
   for(int i = 0; i < (sizeof(commands)/sizeof(char *)); i++) {
     printf("  %s\n", commands[i]);
   }
+  return 1;
 }
 
 /*
@@ -91,7 +89,7 @@ char **parse(char line[INPUT_SIZE], char delim[]) {
 * MARK: execute(**argv) creates a new process for each new command.
 */
 
-void execute(char **argv) {
+int execute(char **argv) {
   pid_t pid, c;
   int status;
   if((pid = fork()) < 0) {
@@ -104,6 +102,21 @@ void execute(char **argv) {
   } else {
       c = wait(&status);
   }
+  return 1;
+}
+
+int checkCmd(char **args) {
+  if(args[0] == NULL) {
+    return 1;
+  }
+  if(strcmp(args[0],"quit") == 0) {
+    return quit_loop();
+  } else if(strcmp(args[0],"cd")==0) {
+    return cd(args);
+  } else if(strcmp(args[0],"help")==0) {
+    return help();
+  }
+  return execute(args);
 }
 
 /*
@@ -113,6 +126,7 @@ void execute(char **argv) {
 int main(int argc, char** argv) {
   char userInput[INPUT_SIZE];//used to read lines from command promt
   char **toks; //commands seperated by ; character
+  int status = 1;
   while(1) {
     printf("prompt> ");
     gets(userInput);
@@ -122,14 +136,14 @@ int main(int argc, char** argv) {
     toks = parse(userInput, ";");
     char **arr;
     for(int i = 0; i < sizeof(toks) && toks != NULL; i++) {
-        arr = parse(toks[i], " \t\n...");
-        if(arr != NULL) {
-          execute(arr);
-        }
+          arr = parse(toks[i], " \t\n");
+          if(arr != NULL) {
+            status = checkCmd(arr);
+            if(!status) {
+              exit(0);
+            }
+          }
       }//end of tok 'for loop'
-
     }//end of userInput != ""
-
   }//end of while()
-
 }//end of main()
