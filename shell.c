@@ -62,26 +62,20 @@ char **parse(char line[INPUT_SIZE], char delim[]) {
   int sz = 64;
   int len;
   char **result = malloc(sz*(sizeof(char)));
-  //printf("After malloc check\n");
   char *temp, *temp2;
-
   if(!result) {//check malloc worked
     fprintf(stderr, "Error allocating!\n");
     exit(EXIT_FAILURE);
   }
   temp = strtok(line, delim);//tokenize line by ;
-  //printf("%s\n",temp);
   while(temp != NULL) {
     len = strlen(temp);//get length of each command
-    //printf("%d\n", len);
     temp2 = malloc((++len) * sizeof(char));//malloc individual token
     strcpy(temp2,temp);//copy into temp2
     result[pos++] = temp2;//insert into result[]
     if(pos >= sz) {
       sz += sz;//double size
-    //  printf("Before reallocating check\n");
       result = realloc(result, sz);
-    //  printf("After reallocating check\n");
     }
     temp = strtok(NULL, delim);
   }
@@ -111,19 +105,6 @@ char **parse(char line[INPUT_SIZE], char delim[]) {
 //   return process(tokens);
 // }//end of exec()
 
- /*
-  * MARK: free_tokens(tokens) iterate through tokens and free each one
-  */
-
-void free_tokens(char **tokens) {
-  char **itr_token = tokens;//set itr to first token
-  while(*itr_token != NULL) {//if not empty
-    free(*itr_token);//free that token
-    itr_token++;//move on to the next token until null is found
-  }
-  free(tokens);//free up tokens
-}//end of free_tokens()
-
 void execute(char **argv) {
   pid_t pid, c;
   int status;
@@ -152,13 +133,10 @@ int main(int argc, char** argv) {
     toks = parse(userInput, ";");
     char **arr;
     for(int i = 0; i < sizeof(toks); i++) {
-      arr = parse(toks[i], " \t\n...");
-      if(arr[i] != NULL) {
-        execute(arr);
+        arr = parse(toks[i], " \t\n...");
+        if(arr != NULL) {
+          execute(arr);
+        }
       }
     }
-  }
-
-
-
 }//end of main()
