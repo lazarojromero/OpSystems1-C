@@ -120,10 +120,10 @@ int checkCmd(char **args) {
 }
 
 /*
- * MARK: main(argc, argv[]) start shell loop
+ * Run interactive mode only if batchfile is not present
  */
 
-int main(int argc, char** argv) {
+void interactiveMode() {
   char userInput[INPUT_SIZE];//used to read lines from command promt
   char **toks; //commands seperated by ; character
   int status = 1;
@@ -146,4 +146,16 @@ int main(int argc, char** argv) {
       }//end of tok 'for loop'
     }//end of userInput != ""
   }//end of while()
+}//end of interactiveMode()
+
+/*
+ * MARK: main(argc, argv[]) start shell loop
+ */
+
+int main(int argc, char* argv[]) {
+  if(argc < 2) {
+    interactiveMode();
+  } else {
+    printf("Batch mode\n");
+  }
 }//end of main()
