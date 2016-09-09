@@ -166,7 +166,9 @@ int main(int argc, char* argv[]) {
       fgets(buff,INPUT_SIZE,file);//read lines from file
       char **t, **a;
       t = parse(buff,";");
-      printf("Seg fault1\n");
+      for(int i = 0; i < (int)sizeof(t); i++) {
+        printf("%s\n",t[i]);
+      }
       for(int i = 0; ((int)sizeof(t)) && t != NULL; i++) {
         a = parse(t[i]," \t\n");
         printf("Seg fault2\n");
