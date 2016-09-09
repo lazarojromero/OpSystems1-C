@@ -6,6 +6,12 @@
 
 #define INPUT_SIZE 1024
 
+/* TODO:
+ * built in commands
+ * quit command
+ * batch mode
+ */
+
 /*
  * MARK: Built in commands that need to be run from within shell itself
  */
@@ -84,26 +90,8 @@ char **parse(char line[INPUT_SIZE], char delim[]) {
 }//end of parse()
 
 /*
- * MARK: exec(tokens) executes array of tokens
- * built in commands then process() from within
- */
-
-// int exec(char** tokens) {
-//   if(tokens[0] == NULL) {
-//     return 1;//empty command was entered, there continue to prompt user
-//   }
-//   // for(int i = 0; i < (sizeof(commands)/sizeof(char *)); i++) {
-//   //   if(strcmp(tokens[0], "cd") == 0) {
-//   //     return cd(tokens);
-//   //   } else if(strcmp(tokens[0], "help") == 0) {
-//   //     return help(tokens);
-//   //   } else if(strcmp(tokens[0], "quit") == 0) {
-//   //     //TODO: finish commands before quitting shell
-//   //     return quit_loop(tokens);
-//   //   }
-//   // }
-//   return process(tokens);
-// }//end of exec()
+* MARK: execute(**argv) creates a new process for each new command.
+*/
 
 void execute(char **argv) {
   pid_t pid, c;
@@ -130,13 +118,22 @@ int main(int argc, char** argv) {
   while(1) {
     printf("prompt> ");
     gets(userInput);
+
+    if(strcmp(userInput,"")==0) {
+      continue;
+    } else {
     toks = parse(userInput, ";");
     char **arr;
-    for(int i = 0; i < sizeof(toks); i++) {
+
+    for(int i = 0; i < sizeof(toks) && toks != NULL; i++) {
         arr = parse(toks[i], " \t\n...");
         if(arr != NULL) {
           execute(arr);
         }
-      }
-    }
+      }//end of tok 'for loop'
+
+    }//end of userInput != ""
+
+  }//end of while()
+
 }//end of main()
