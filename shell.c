@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
         printf("%s\n",t[i]);
       }
       for(int i = 0; ((int)sizeof(t)) && t != NULL; i++) {
-        a = parse(t[i]," \t");
+        a = parse(t[i]," \t\n");
         printf("Seg fault2\n");
         if(a != NULL) {
           status = checkCmd(a);
