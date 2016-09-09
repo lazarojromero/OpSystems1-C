@@ -47,7 +47,7 @@ int quit_loop() {
 
 int help() {
   printf("Lazaro's shell currently has the following built-in commands:\n");
-  for(int i = 0; i < (sizeof(commands)/sizeof(char *)); i++) {
+  for(int i = 0; i < ((int)(sizeof(commands)/sizeof(char *))); i++) {
     printf("  %s\n", commands[i]);
   }
   return 1;
@@ -135,7 +135,7 @@ void interactiveMode() {
     } else {
     toks = parse(userInput, ";");
     char **arr;
-    for(int i = 0; i < sizeof(toks) && toks != NULL; i++) {
+    for(int i = 0; i < ((int)sizeof(toks)) && toks != NULL; i++) {
           arr = parse(toks[i], " \t\n");
           if(arr != NULL) {
             status = checkCmd(arr);
@@ -156,6 +156,6 @@ int main(int argc, char* argv[]) {
   if(argc < 2) {
     interactiveMode();
   } else {
-    printf("Batch mode\n");
+    printf("%s\n", argv[0]);
   }
 }//end of main()
