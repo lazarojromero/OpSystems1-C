@@ -165,9 +165,9 @@ int main(int argc, char* argv[]) {
       char buff[INPUT_SIZE];
       fgets(buff,INPUT_SIZE,file);//read lines from file
       char **t, **a;
-      t = parse(((char**)buff),";");
+      t = parse(buff,";");
       for(int i = 0; ((int)sizeof(t)) && t != NULL; i++) {
-        a = parse(((char**)t[i])," \t\n");
+        a = parse(t[i]," \t\n");
         if(a != NULL) {
           status = checkCmd(a);
           if(!status) {
