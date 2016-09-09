@@ -26,7 +26,7 @@ char *commands[] = {
  * MARK: Must first change second arg exits before calling chdir()
  */
 
-int cd(char** path) {
+void cd(char** path) {
   if(path[1] == NULL) {//if second arg is missing
     fprintf(stderr, "Error: second arguement for cd command missing..\n");
   } else {
@@ -34,27 +34,25 @@ int cd(char** path) {
       perror("Error: could not change directory\n");
     }
   }
-  return 1;//return 1 if no error
 }
 
 /*
  * MARK: returns 0 to exit shell loop
  */
 
-int quit_loop(char** path) {
-  return 0;
+void quit_loop() {
+  exit(0);
 }
 
 /*
  * MARK: message that lists all commands
  */
 
-int help(char** path) {
+void help() {
   printf("The following are built in commands supported by Lazaro's Shell:\n");
   for(int i = 0; i < (sizeof(commands)/sizeof(char *)); i++) {
     printf("  %s\n", commands[i]);
   }
-  return 1;
 }
 
 /*
@@ -101,7 +99,7 @@ void execute(char **argv) {
     exit(1);
   } else if(pid == 0) {
     execvp(argv[0], argv);//if returns then failed
-    printf("Error: exec failed\n");
+    //printf("Error: exec failed\n");
     exit(1);
   } else {
       c = wait(&status);
@@ -118,13 +116,11 @@ int main(int argc, char** argv) {
   while(1) {
     printf("prompt> ");
     gets(userInput);
-
     if(strcmp(userInput,"")==0) {
       continue;
     } else {
     toks = parse(userInput, ";");
     char **arr;
-
     for(int i = 0; i < sizeof(toks) && toks != NULL; i++) {
         arr = parse(toks[i], " \t\n...");
         if(arr != NULL) {
