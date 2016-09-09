@@ -1,22 +1,55 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 #define INPUT_SIZE 1024
-#define _DELIM ";"
 
 /*
- * MARK: read() will return the user's inputted commands, with error checking
+ * MARK: Built in commands that need to be run from within shell itself
  */
 
-char* read() {
-  char line[130];//container for user input
-  fgets(line, 130, stdin);//fgets no larger than 1024 bytes from stdin
+char *commands[] = {
+  "cd",
+  "quit",
+  "help"
+};
+
 /*
- * TODO: check if commands entered are valid/supported
+ * MARK: Must first change second arg exits before calling chdir()
  */
-  return line;
-}//end of read()
+
+int cd(char** path) {
+  if(path[1] == NULL) {//if second arg is missing
+    fprintf(stderr, "Error: second arguement for cd command missing..\n");
+  } else {
+    if(chdir(path[1]) != 0) {//if chdir() fails...
+      perror("Error: could not change directory\n");
+    }
+  }
+  return 1;//return 1 if no error
+}
+
+/*
+ * MARK: returns 0 to exit shell loop
+ */
+
+int quit_loop(char** path) {
+  return 0;
+}
+
+/*
+ * MARK: message that lists all commands
+ */
+
+int help(char** path) {
+  printf("The following are built in commands supported by Lazaro's Shell:\n");
+  for(int i = 0; i < (sizeof(commands)/sizeof(char *)); i++) {
+    printf("  %s\n", commands[i]);
+  }
+  return 1;
+}
 
 /*
  * MARK: parse(char*) will parse through the user's input, seperated by ; character.
@@ -24,7 +57,7 @@ char* read() {
  * by the shell.
  */
 
-char **parse(char *line) {
+char **parse(char line[INPUT_SIZE], char delim[]) {
   int pos = 0;
   int sz = 64;
   int len;
@@ -36,23 +69,21 @@ char **parse(char *line) {
     fprintf(stderr, "Error allocating!\n");
     exit(EXIT_FAILURE);
   }
-  //printf("Before tokenizing\n");
-  temp = strtok(line, _DELIM);//tokenize line by ;
-  //printf("After tokenizing\n");
-
+  temp = strtok(line, delim);//tokenize line by ;
+  //printf("%s\n",temp);
   while(temp != NULL) {
-    len = strlen(temp);//get length
+    len = strlen(temp);//get length of each command
+    //printf("%d\n", len);
     temp2 = malloc((++len) * sizeof(char));//malloc individual token
     strcpy(temp2,temp);//copy into temp2
     result[pos++] = temp2;//insert into result[]
-
     if(pos >= sz) {
       sz += sz;//double size
     //  printf("Before reallocating check\n");
       result = realloc(result, sz);
     //  printf("After reallocating check\n");
     }
-    temp = strtok(NULL, _DELIM);
+    temp = strtok(NULL, delim);
   }
   result[pos] = NULL;//null terminated
   return result;
@@ -63,33 +94,22 @@ char **parse(char *line) {
  * built in commands then process() from within
  */
 
-int exec(char** tokens) {
-  return 0;
-}//end of exec()
-
-/*
- * MARK: process(**toks) executes commands using fork(), execvp(), wait()/waitpid()
- */
-
- int process(char **toks) {
-   pid_t child, c;//parent process id number of child
-   int status;
-   child = fork();
-   if(child == 0) {//child, takes first condition
-     if(execvp(toks[0], toks) == -1) {//run command given by user, if returns then error
-       perror("Error executiing command..");
-     }  exit(EXIT_FAILURE);//exit and keep running shell
-   } else if(child < 0) {//error when forking
-     perror("Error forking..");
-   } else {//parent, successful fork(), wait for command to finish
-      do {
-        c = waitpid(child, &status, WUNTRACED);//wait for state to change
-        //^^^return status information for a specified process
-        //that has either stopped or terminated
-      } while(!WIFEXITED(status) && !WIFSIGNALED(status));//exited or killed
-   }         //^^return 0 is terminated normally and mishanded signal
-   return 1;//prompt for more input
- }//end of process()
+// int exec(char** tokens) {
+//   if(tokens[0] == NULL) {
+//     return 1;//empty command was entered, there continue to prompt user
+//   }
+//   // for(int i = 0; i < (sizeof(commands)/sizeof(char *)); i++) {
+//   //   if(strcmp(tokens[0], "cd") == 0) {
+//   //     return cd(tokens);
+//   //   } else if(strcmp(tokens[0], "help") == 0) {
+//   //     return help(tokens);
+//   //   } else if(strcmp(tokens[0], "quit") == 0) {
+//   //     //TODO: finish commands before quitting shell
+//   //     return quit_loop(tokens);
+//   //   }
+//   // }
+//   return process(tokens);
+// }//end of exec()
 
  /*
   * MARK: free_tokens(tokens) iterate through tokens and free each one
@@ -104,23 +124,40 @@ void free_tokens(char **tokens) {
   free(tokens);//free up tokens
 }//end of free_tokens()
 
+void execute(char **argv) {
+  pid_t pid, c;
+  int status;
+  if((pid = fork()) < 0) {
+    printf("Error: forking child process failed\n");
+    exit(1);
+  } else if(pid == 0) {
+    execvp(argv[0], argv);//if returns then failed
+    printf("Error: exec failed\n");
+    exit(1);
+  } else {
+      c = wait(&status);
+  }
+}
+
 /*
  * MARK: main(argc, argv[]) start shell loop
  */
 
 int main(int argc, char** argv) {
-  char *userInput;//used to read lines from command promt
+  char userInput[INPUT_SIZE];//used to read lines from command promt
   char **toks; //commands seperated by ; character
-  int status; //decides when to quit/exit
-  printf("Welcome to Lazaro's Shell!\n");
-  do {
+  while(1) {
     printf("prompt> ");
-    userInput = read();//read commands from user
-    toks = parse(userInput);
-    status = exec(toks);
-    free(*userInput);//free up space in memory, deallocate
-    free_tokens(toks);//individually free tokens, fixes compile error
-  }while(status);
+    gets(userInput);
+    toks = parse(userInput, ";");
+    char **arr;
+    for(int i = 0; i < sizeof(toks); i++) {
+      arr = parse(toks[i], " \t\n...");
+      if(arr[i] != NULL) {
+        execute(arr);
+      }
+    }
+  }
 
 
 
