@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
     interactiveMode();
   } else {
     FILE *file = fopen(argv[1],"r");//open and read FILE
-    int status = 1;
+    //int status = 1;
     if(file==0) {
       printf("File could not be found or opened!\n");
       exit(0);
@@ -169,16 +169,16 @@ int main(int argc, char* argv[]) {
       for(int i = 0; i < (int)sizeof(t); i++) {
         printf("%s\n",t[i]);
       }
-      // for(int i = 0; ((int)sizeof(t)) && t != NULL; i++) {
-      //   a = parse(t[i]," \t\n");
-      //   //printf("Seg fault2\n");
-      //   if(a != NULL) {
-      //     status = checkCmd(a);
-      //     if(!status) {
-      //       exit(0);
-      //     }
-      //   }
-      // }
+      for(int i = 0; ((int)sizeof(t)) && t != NULL; i++) {
+        a = parse(t[i]," \t\n");
+        //printf("Seg fault2\n");
+        // if(a != NULL) {
+        //   status = checkCmd(a);
+        //   if(!status) {
+        //     exit(0);
+        //   }
+        // }
+      }
       fclose(file);
       return 0;
     }
