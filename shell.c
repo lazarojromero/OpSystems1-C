@@ -165,20 +165,20 @@ int main(int argc, char* argv[]) {
       char buff[INPUT_SIZE];
       fgets(buff,INPUT_SIZE,file);//read lines from file
       char **t, **a;
-      t = parse(buff,";\n");
+      t = parse(buff,";");
       for(int i = 0; i < (int)sizeof(t); i++) {
         printf("%s\n",t[i]);
       }
-      for(int i = 0; ((int)sizeof(t)) && t != NULL; i++) {
-        a = parse(t[i]," \t\n");
-        //printf("Seg fault2\n");
-        if(a != NULL) {
-          status = checkCmd(a);
-          if(!status) {
-            exit(0);
-          }
-        }
-      }
+      // for(int i = 0; ((int)sizeof(t)) && t != NULL; i++) {
+      //   a = parse(t[i]," \t\n");
+      //   //printf("Seg fault2\n");
+      //   if(a != NULL) {
+      //     status = checkCmd(a);
+      //     if(!status) {
+      //       exit(0);
+      //     }
+      //   }
+      // }
       fclose(file);
       return 0;
     }
