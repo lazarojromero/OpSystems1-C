@@ -5,23 +5,18 @@
 #include <sys/wait.h>
 
 #define INPUT_SIZE 1024
-/* TODO:
- * batch mode
- */
+
 /*
  * MARK: Built in commands that need to be run from within shell itself
  */
-
 char *commands[] = {
   "cd",
   "quit",
   "help"
 };
-
 /*
  * MARK: Must first change second arg exits before calling chdir()
  */
-
 int cd(char** path) {
   if(path[1] == NULL) {//if second arg is missing
     fprintf(stderr, "Error: second arguement for cd command missing..\n");
@@ -32,20 +27,16 @@ int cd(char** path) {
   }
   return 1;
 }
-
 /*
  * MARK: returns 0 to exit shell loop
  */
-
 int quit_loop() {
   printf("**Quitting/EOF**\n");
   return 0;
 }
-
 /*
  * MARK: message that lists all commands
  */
-
 int help() {
   printf("Lazaro's shell currently has the following built-in commands:\n");
   for(int i = 0; i < ((int)(sizeof(commands)/sizeof(char *))); i++) {
@@ -53,13 +44,11 @@ int help() {
   }
   return 1;
 }
-
 /*
  * MARK: parse(char*) will parse through the user's input, seperated by ; character.
  * Will return an array of tokens/strings, each token being a command to be exectued
  * by the shell.
  */
-
 char **parse(char line[INPUT_SIZE], char delim[]) {
   int pos = 0;
   int sz = 64;
@@ -85,11 +74,9 @@ char **parse(char line[INPUT_SIZE], char delim[]) {
   result[pos] = NULL;//null terminated
   return result;
 }//end of parse()
-
 /*
 * MARK: execute(**argv) creates a new process for each new command.
 */
-
 int execute(char **argv) {
   pid_t pid, c;
   int status;
@@ -107,7 +94,6 @@ int execute(char **argv) {
   }
   return 1;
 }
-
 int checkCmd(char **args) {
   if(args[0] == NULL) {
     return 1;
@@ -121,11 +107,9 @@ int checkCmd(char **args) {
   }
   return execute(args);
 }
-
 /*
  * Run interactive mode only if batchfile is not present
  */
-
 void interactiveMode() {
   char userInput[INPUT_SIZE];//used to read lines from command promt
   char **toks; //commands seperated by ; character
@@ -150,11 +134,9 @@ void interactiveMode() {
     }//end of userInput != ""
   }//end of while()
 }//end of interactiveMode()
-
 /*
  * MARK: main(argc, argv[]) start shell loop
  */
-
 int main(int argc, char* argv[]) {
   if(argc < 2) {
     interactiveMode();
@@ -180,7 +162,6 @@ int main(int argc, char* argv[]) {
             }
           }
       }//read lines from file
-
       fclose(file);
       quit_loop();
     }
