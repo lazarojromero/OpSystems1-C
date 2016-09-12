@@ -9,5 +9,5 @@ Complete specification:
   In order to avoid conflicts when tokenizing input commands, I created a parsing function that takes in a char** and delimiter so that I am able to tokenize the user's input twice. The first time around by simply parsing with ';' delimiter, then parsing it again in order to pass it through my execute function that implements fork(), execvp(), waitpid(),wait()..
 
 Known bugs or problems:
-  TODO
+  Program does not print out commands before displaying execution (memory issues arise).
   
