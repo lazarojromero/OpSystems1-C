@@ -157,28 +157,25 @@ int main(int argc, char* argv[]) {
     interactiveMode();
   } else {
     FILE *file = fopen(argv[1],"r");//open and read FILE
-    //int status = 1;
+    int status =1;
     if(file==0) {
       printf("File could not be found or opened!\n");
       exit(0);
     } else {
       char buff[INPUT_SIZE];
-      fgets(buff,INPUT_SIZE,file);//read lines from file
-      char **t, **a;
-      t = parse(buff,";");
-      for(int i = 0; i < (int)sizeof(t); i++) {
-        printf("%s\n",t[i]);
-      }
-      for(int i = 0; ((int)sizeof(t)) && t != NULL; i++) {
-        a = parse(t[i]," \t\n");
-        //printf("Seg fault2\n");
-        // if(a != NULL) {
-        //   status = checkCmd(a);
-        //   if(!status) {
-        //     exit(0);
-        //   }
-        // }
-      }
+      char **t,**a;
+      while(fgets(buff,INPUT_SIZE,file)) {
+          t = parse(buff,";\n");
+          for(int i = 0; i < ((int)sizeof(t)); i++) {
+            a = parse(t[i]," \t\n");
+            if(a != NULL) {
+              status = checkCmd(a);
+            }
+            if(!status) {
+              exit(0);
+            }
+          }
+      }//read lines from file
       fclose(file);
       return 0;
     }
