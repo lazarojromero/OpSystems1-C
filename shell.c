@@ -38,6 +38,7 @@ int cd(char** path) {
  */
 
 int quit_loop() {
+  printf("**Quitting/EOF**\n");
   return 0;
 }
 
@@ -97,7 +98,9 @@ int execute(char **argv) {
     exit(1);
   } else if(pid == 0) {
     execvp(argv[0], argv);//if returns then failed
-    //printf("Error: exec failed\n");
+    for(int i = 0; i < 1; i++) {
+      printf("Error: unsupported command detected\n");
+    }
     exit(1);
   } else {
       c = wait(&status);
@@ -155,7 +158,7 @@ void interactiveMode() {
 int main(int argc, char* argv[]) {
   if(argc < 2) {
     interactiveMode();
-  } else {
+  } else if(argc == 2){
     FILE *file = fopen(argv[1],"r");//open and read FILE
     int status =1;
     if(file==0) {
@@ -170,14 +173,19 @@ int main(int argc, char* argv[]) {
             a = parse(t[i]," \t\n");
             if(a != NULL) {
               status = checkCmd(a);
+              free(a);
             }
             if(!status) {
               exit(0);
             }
           }
       }//read lines from file
+
       fclose(file);
-      return 0;
+      quit_loop();
     }
+  } else {
+    printf("Incorrect command line arguements..\n");
+    exit(0);
   }
 }//end of main()
